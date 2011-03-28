@@ -5,4 +5,5 @@ bin/*.app
 project.xcworkspace
 xcuserdata
 build
+*.app
 

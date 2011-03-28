@@ -316,6 +316,7 @@ void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
 {
     if (appPtr == NULL)
         return;
+    _app = appPtr;
     
     {
         
