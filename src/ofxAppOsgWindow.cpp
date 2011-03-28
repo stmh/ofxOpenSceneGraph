@@ -397,13 +397,19 @@ void ofxAppOsgWindow::setFullscreen(bool fullscreen)
     osgViewer::GraphicsWindow* win = getGraphicsWindow();
     
     
-    if (fullscreen) {
+    if (fullscreen) 
+    {
         _savedTraits = new osg::GraphicsContext::Traits(*win->getTraits());
         osg::GraphicsContext::WindowingSystemInterface* wsi = osg::GraphicsContext::getWindowingSystemInterface();
         wsi->getScreenResolution(*win->getTraits(), w, h);
         x = y = 0;
         decoration = false;
-    } else {
+    } 
+    else 
+    {
+        if (!_savedTraits)
+            _savedTraits = new osg::GraphicsContext::Traits(*win->getTraits());
+        
         x = _savedTraits->x;
         y = _savedTraits->y;
         w = _savedTraits->width;
