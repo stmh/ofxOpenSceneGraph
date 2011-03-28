@@ -21,7 +21,8 @@ this small add-on helps OpenFrameworks-code to live side by side with OpenSceneG
          -D CMAKE_OSX_ARCHITECTURES:STRING=i386 \
          -D CMAKE_OSX_SYSROOT:STRING=/Developer/SDKs/MacOSX10.5.sdk .
   * open the xcode-project, build all targets and run the install-target (the run-part is essential!)
-* Move the compiled frameworks from OpenSceneGraph into openFrameworks/addons/ofxOpenSceneGraph/lib/osx/frameworks
+* Move the compiled frameworks from OpenSceneGraph to openFrameworks/addons/ofxOpenSceneGraph/lib/osx/frameworks
+* Move all plugins from OpenSceneGraph to  openFrameworks/addons/ofxOpenSceneGraph/lib/osx/plugins
 * Open one of the examples and try to build and run it.
 
 ### How it works
@@ -44,7 +45,7 @@ There's even a ofxOsgApp-class, so you can get the composite-viewer and view fro
 
 * the OpenFrameworks-draw-routine is called before any drawing is done by OpenSceneGraph. Future versions may implement a postDraw-function which get called after all osg-related drawing.
 * the current implementation does funky things when destroying the app-instance, as some OpenFrameworks-objects need an active OpenGL-context when they get destroyed.
-
+* osg's multi-threaded rendering is disabled, as the update and draw-routines of the framework-app may overlap.
 
 Have fun, 
 
