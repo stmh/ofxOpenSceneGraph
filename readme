@@ -34,7 +34,7 @@ There's even a ofxOsgApp-class, so you can get the composite-viewer and view fro
 
     };
 
-##Caveats
+## Caveats
 
 * the OpenFrameworks-draw-routine is called before any drawing is done by OpenSceneGraph. Future versions may implement a postDraw-function which get called after all osg-related drawing.
 * the current implementation does funky things when destroying the app-instance, as some OpenFrameworks-objects need an active OpenGL-context when they get destroyed.
