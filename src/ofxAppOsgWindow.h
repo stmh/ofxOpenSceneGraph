@@ -14,6 +14,7 @@
 
 namespace osgViewer {
     class CompositeViewer;
+    class GraphicsWindow;
 }
 
 class ofxAppOsgWindow : public ofAppBaseWindow {
@@ -24,36 +25,39 @@ public:
 	virtual void initializeWindow();
 	virtual void runAppViaInfiniteLoop(ofBaseApp * appPtr);
     
-	virtual void hideCursor() {}
-	virtual void showCursor() {}
+	virtual void hideCursor();
+	virtual void showCursor();
     
-	virtual void	setWindowPosition(int x, int y) {}
-	virtual void	setWindowShape(int w, int h) {}
+	virtual void	setWindowPosition(int x, int y);
+	virtual void	setWindowShape(int w, int h);
     
 	virtual int		getFrameNum() { return _frameNumber; }
 	virtual	float	getFrameRate() {return _frameRate; }
 	virtual double  getLastFrameTime(){ return _lastFrameTime; }
     
-	virtual ofPoint	getWindowPosition() {return ofPoint(); }
-	virtual ofPoint	getWindowSize(){return ofPoint(_w, _h); }
+	virtual ofPoint	getWindowPosition();
+	virtual ofPoint	getWindowSize();
 	virtual ofPoint	getScreenSize();
     
 	virtual void	setFrameRate(float targetRate){}
-	virtual void	setWindowTitle(string title){}
+	virtual void	setWindowTitle(string title);
     
 	virtual int		getWindowMode() {return 0;}
     
-	virtual void	setFullscreen(bool fullscreen){}
-	virtual void	toggleFullscreen(){}
+	virtual void	setFullscreen(bool fullscreen);
+	virtual void	toggleFullscreen();
     
 	virtual void	enableSetupScreen(){ _setupScreen = true; }
 	virtual void	disableSetupScreen(){ _setupScreen = false; }
     
     inline bool setupScreenEnabled() const { return _setupScreen; }
+    
 protected:
+    
     void setView(osgViewer::View* view) { _view = view; }
     osgViewer::View* getView() { return _view; }
     ofBaseApp* getApp() { return _app; }
+    osgViewer::GraphicsWindow* getGraphicsWindow();
     
     osg::ref_ptr<osgViewer::View> _view;
     ofBaseApp*                     _app;
@@ -65,7 +69,9 @@ protected:
     double _lastFrameTime;
     
     friend class ofCameraPreDrawCallback;
+    int _screenMode;
     
+    osg::ref_ptr<osg::GraphicsContext::Traits> _savedTraits;
 
 };
 

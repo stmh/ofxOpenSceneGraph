@@ -16,12 +16,9 @@
 #include <osgGA/GUIEventHandler>
 #include <osgViewer/ViewerEventHandlers>
 
-#ifdef OF_USING_POCO
-ofCoreEvents 				ofEvents;
-ofEventArgs					voidEventArgs;
-#endif
 
-
+extern ofCoreEvents 				ofEvents;
+extern ofEventArgs					voidEventArgs;
 // some glue-code for event-handling:
 
 inline void notifySetup(ofBaseApp* app) 
@@ -195,8 +192,11 @@ public:
             case osgGA::GUIEventAdapter::KEYUP:
                 notifyKeyReleased(_app, ea.getKey());
                 break;
-			case osgGA::GUIEventAdapter::RESIZE:
+			
+            case osgGA::GUIEventAdapter::RESIZE:
 				notifyWindowResized(_app, ea.getWindowWidth(), ea.getWindowHeight());
+                break;
+            
             default:
                 break;
             
@@ -284,7 +284,7 @@ ofxAppOsgWindow::ofxAppOsgWindow()
     _app(NULL),
     _setupScreen(true),
     _frameNumber(0),
-    _frameRate(0.0),
+    _frameRate(60.0),
     _lastFrameTime(0.0)
 {
 }
@@ -293,7 +293,13 @@ void ofxAppOsgWindow::setupOpenGL(int w, int h, int screenMode)
 {
     std::cout << "setupOpenGL << " << w << "x" << h << std::endl;
     _w = w; _h = h;
+    _screenMode = screenMode;
     
+    if (_screenMode == OF_GAME_MODE) 
+    {
+        osg::GraphicsContext::WindowingSystemInterface* wsi = osg::GraphicsContext::getWindowingSystemInterface();
+        wsi->setScreenResolution(0, w, h);
+    }
 }
 
 
@@ -312,61 +318,199 @@ ofPoint	ofxAppOsgWindow::getScreenSize()
     return ofPoint(w,h);
 }
 
+osgViewer::GraphicsWindow* ofxAppOsgWindow::getGraphicsWindow()
+{
+    return (_view.valid()) ? dynamic_cast<osgViewer::GraphicsWindow*>(_view->getCamera()->getGraphicsContext()) : NULL;
+}
+
+
+void ofxAppOsgWindow::setWindowTitle(string title)
+{
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow())
+        win->setWindowName(title);
+}
+
+
+void ofxAppOsgWindow::hideCursor()
+{
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow())
+        win->useCursor(false);
+}
+
+
+void ofxAppOsgWindow::showCursor()
+{
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow())
+        win->useCursor(true);
+}
+
+
+void ofxAppOsgWindow::setWindowPosition(int x, int y)
+{
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow()) {
+        int w = win->getTraits()->width;
+        int h = win->getTraits()->height;
+        win->setWindowRectangle(x,y,w,h);
+    }
+}
+
+
+void ofxAppOsgWindow::setWindowShape(int w, int h)
+{
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow()) {
+        int x = win->getTraits()->x;
+        int y = win->getTraits()->y;
+        win->setWindowRectangle(x,y,w,h);
+    }
+}
+
+
+ofPoint	ofxAppOsgWindow::getWindowPosition() 
+{
+    ofPoint pos;
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow()) {
+        pos.x = win->getTraits()->x;
+        pos.y = win->getTraits()->y;
+    }
+    
+    return pos;
+}
+
+ofPoint	ofxAppOsgWindow::getWindowSize()
+{
+    ofPoint pos;
+    if (osgViewer::GraphicsWindow* win = getGraphicsWindow()) {
+        _w = pos.x = win->getTraits()->width;
+        _h = pos.y = win->getTraits()->height;
+    }
+    
+    return pos;
+}
+
+
+void ofxAppOsgWindow::setFullscreen(bool fullscreen)
+{
+    
+    int x, y;
+    unsigned int w, h;
+    bool decoration;
+    osgViewer::GraphicsWindow* win = getGraphicsWindow();
+    
+    
+    if (fullscreen) {
+        _savedTraits = new osg::GraphicsContext::Traits(*win->getTraits());
+        osg::GraphicsContext::WindowingSystemInterface* wsi = osg::GraphicsContext::getWindowingSystemInterface();
+        wsi->getScreenResolution(*win->getTraits(), w, h);
+        x = y = 0;
+        decoration = false;
+    } else {
+        x = _savedTraits->x;
+        y = _savedTraits->y;
+        w = _savedTraits->width;
+        h = _savedTraits->height;
+               
+        decoration = _savedTraits->windowDecoration;
+    }
+    win->setWindowDecoration(decoration);
+    win->setWindowRectangle(x, y, w, h);
+}
+
+
+void ofxAppOsgWindow::toggleFullscreen()
+{
+
+}
+
+
 void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
 {
     if (appPtr == NULL)
         return;
+    
     _app = appPtr;
     
+    // create the viewer
+    
+    osg::ref_ptr<osgViewer::CompositeViewer> viewer = new osgViewer::CompositeViewer();
+    viewer->setThreadingModel(osgViewer::CompositeViewer::SingleThreaded);
+    
+    ofxOsgApp* osg_app_ptr = dynamic_cast<ofxOsgApp*>(appPtr);
+    
+    if(osg_app_ptr) 
     {
+        osg_app_ptr->setViewer(viewer.get());
         
-        osg::ref_ptr<osgViewer::CompositeViewer> viewer = new osgViewer::CompositeViewer();
-        viewer->setThreadingModel(osgViewer::CompositeViewer::SingleThreaded);
+        // do we have a view?
+        _view = osg_app_ptr->getView();
         
-        ofxOsgApp* osg_app_ptr = dynamic_cast<ofxOsgApp*>(appPtr);
-        
-        if(osg_app_ptr) {
-            osg_app_ptr->setViewer(viewer.get());
-            _view = osg_app_ptr->getView();
+        if(osgViewer::GraphicsWindow* win = getGraphicsWindow()) 
+        {
+            _w = win->getTraits()->width;
+            _h = win->getTraits()->height;
         }
-		
-        if(!_view) {
-            _view = new osgViewer::View();
-            _view->setUpViewInWindow(0,0,_w, _h);
-        }
-        
-        _view->addEventHandler(new ofEventHandler(appPtr));
-        _view->addEventHandler(new osgViewer::StatsHandler());
-        
-        _view->getCamera()->setClearMask(0x0);
-        _view->getCamera()->setPreDrawCallback(new ofCameraPreDrawCallback(this));
-        
-        viewer->addView(_view);
-        
-        if (osg_app_ptr)
-            osg_app_ptr->setView(_view);
-        
-        viewer->realize();
-        _view->getCamera()->getGraphicsContext()->makeCurrent();
-        
-        notifySetup(appPtr);
-        
-        while(!viewer->done()) {
-            notifyUpdate(appPtr); 
-            viewer->frame();
-        }
-        _view->getCamera()->getGraphicsContext()->makeCurrent();
-        
-        notifyExit(appPtr);
-        delete appPtr;
-        ofRunApp(NULL);
-        
-        _view->getCamera()->setPreDrawCallback(NULL);
-        viewer->removeView(_view);
-        
-        _view = NULL;
-        viewer = NULL;
     }
+    
+    if(!_view) 
+    {
+        // create a simple view
+        _view = new osgViewer::View();
+        
+        if(_screenMode == OF_FULLSCREEN || _screenMode == OF_GAME_MODE) 
+        {
+           _view->setUpViewOnSingleScreen();
+        } 
+        else 
+        {
+            _view->setUpViewInWindow(0, 0, _w, _h);
+        }
+    }
+    
+    _view->addEventHandler(new ofEventHandler(appPtr));
+    _view->addEventHandler(new osgViewer::StatsHandler());
+    
+    // disable clear mask, as its done by OpenFrameworks
+    _view->getCamera()->setClearMask(0x0);
+    _view->getCamera()->setPreDrawCallback(new ofCameraPreDrawCallback(this));
+    
+    // register view
+    viewer->addView(_view);
+    
+    if (osg_app_ptr)
+        osg_app_ptr->setView(_view);
+    
+    // realize it
+    viewer->realize();
+    
+    // make the graphics context current
+    _view->getCamera()->getGraphicsContext()->makeCurrent();
+    
+    // notify app
+    notifySetup(appPtr);
+    
+    // run
+    while(!viewer->done()) {
+        notifyUpdate(appPtr); 
+        viewer->frame();
+    }
+    
+    // make graphics context current
+    _view->getCamera()->getGraphicsContext()->makeCurrent();
+    
+    //notify exit
+    notifyExit(appPtr);
+    
+    // delete app now, because some of-objects assume a valid graphcis-context
+    delete appPtr;
+    
+    // set app-ptr to NULL
+    ofRunApp(NULL);
+    
+    // clear view + viewer
+    _view->getCamera()->setPreDrawCallback(NULL);
+    viewer->removeView(_view);
+    
+    _view = NULL;
+    viewer = NULL;
     
     OF_EXIT_APP(0);
 }

@@ -29,11 +29,28 @@ void testApp::draw(){
      // std::cout << "draw" << std::endl;
     ofDrawBitmapString("ofxOpenSceneGraph Demo", 10, 10);
     ofDrawBitmapString("fps: "+ofToString((ofGetFrameRate())), 10, 25);
+    
+    ofDrawBitmapString("'1': set window position\n'2': set window size\n'f': disable full screen \n'F': enable full screen\n's': show osg's stats-handler", 10,50);
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
- std::cout << "keypressed" << std::endl;
+    std::cout << "keypressed" << std::endl;
+    switch(key) {
+        case '1':
+            ofSetWindowPosition(100,100);
+            break;
+        case '2':
+            ofSetWindowShape(400, 300);
+            break;
+        case 'f':
+            ofSetFullscreen(false);
+            break;
+        case 'F':
+            ofSetFullscreen(true);
+            break;
+            
+    }
 }
 
 //--------------------------------------------------------------
