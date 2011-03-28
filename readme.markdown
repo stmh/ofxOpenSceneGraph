@@ -1,5 +1,5 @@
-## ofxOpenSceneGraph Readme
-by http://stephanmaximilianhuber.com
+## ofxOpenSceneGraph ReadMe
+by <http://stephanmaximilianhuber.com>
 
 this small add-on helps OpenFrameworks-code to live side by side with OpenSceneGraph.
 
@@ -8,7 +8,7 @@ this small add-on helps OpenFrameworks-code to live side by side with OpenSceneG
 * OpenSceneGraph from <http://openscenegraph.org>
 * OpenFrameworks 0062 from <http://openframeworks.org>
 
-## Install (OS X only for the moment, should work with linux/win32, too)
+### Install (OS X only for the moment, should work with linux/win32, too)
 
 * download, configure and install OpenFrameworks
 * download and copy this addon into OpenFramworks/addons
@@ -27,6 +27,7 @@ this small add-on helps OpenFrameworks-code to live side by side with OpenSceneG
 ### How it works
 
 ofxOpenSceneGraph provides a customized ofAppBaseWindow-class which 
+
 * creates an osgViewer::CompositeViewer
 * creates an osgViewer::View and register it 
 * creates an event-handler to forward events from OpenSceneGraph to OpenFrameworks
@@ -46,5 +47,6 @@ There's even a ofxOsgApp-class, so you can get the composite-viewer and view fro
 
 
 Have fun, 
+
 Stephan ( me at stephanmaximimilanhuber.com )
 
