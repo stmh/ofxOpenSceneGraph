@@ -34,7 +34,7 @@ ofxOpenSceneGraph provides a customized ofAppBaseWindow-class which
 * creates a CameraPreDrawCallback which calls the draw-function of the OpenFrameworks-app.
 * runs the run-loop and calls the update-function of the OpenFrameworks-app.
 
-There's even a ofxOsgApp-class, so you can get the composite-viewer and view from you app-code. Just inherit from ofBaseApp and ofxOsgApp
+There's even a ofxOsgApp-class, so you can get the composite-viewer and view from your app-code. Just inherit from ofBaseApp and ofxOsgApp
 
     class myApp : public ofBaseApp, public ofxOsgApp {
 
@@ -49,4 +49,3 @@ There's even a ofxOsgApp-class, so you can get the composite-viewer and view fro
 Have fun, 
 
 Stephan ( me at stephanmaximimilanhuber.com )
-
