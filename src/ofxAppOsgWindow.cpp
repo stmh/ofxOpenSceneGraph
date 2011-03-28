@@ -16,6 +16,149 @@
 #include <osgGA/GUIEventHandler>
 #include <osgViewer/ViewerEventHandlers>
 
+#ifdef OF_USING_POCO
+ofCoreEvents 				ofEvents;
+ofEventArgs					voidEventArgs;
+#endif
+
+
+// some glue-code for event-handling:
+
+inline void notifySetup(ofBaseApp* app) 
+{
+    if (app)
+        app->setup();
+
+    #ifdef OF_USING_POCO
+        ofNotifyEvent( ofEvents.setup, voidEventArgs );
+    #endif
+}
+
+
+inline void notifyUpdate(ofBaseApp* app) 
+{
+    if (app)
+        app->update();
+   
+    #ifdef OF_USING_POCO
+        ofNotifyEvent( ofEvents.update, voidEventArgs );
+    #endif
+}
+
+inline void notifyDraw(ofBaseApp* app) 
+{
+    if (app)
+        app->draw();
+    
+#ifdef OF_USING_POCO
+    ofNotifyEvent( ofEvents.draw, voidEventArgs );
+#endif
+}
+
+inline void notifyExit(ofBaseApp* app) 
+{
+    if (app)
+        app->exit();
+    
+#ifdef OF_USING_POCO
+    ofNotifyEvent( ofEvents.exit, voidEventArgs );
+#endif
+}
+
+inline void notifyMouseMoved(ofBaseApp* app, int x, int y) 
+{
+    if (app)
+        app->mouseMoved(x,y);
+
+#ifdef OF_USING_POCO
+    ofMouseEventArgs mouseEventArgs;
+    mouseEventArgs.x = x;
+    mouseEventArgs.y = y;
+    ofNotifyEvent( ofEvents.mouseMoved, mouseEventArgs );
+#endif
+}
+
+inline void notifyMouseDragged(ofBaseApp* app, int x, int y, int button) 
+{
+    if (app)
+        app->mouseDragged(x,y, button);
+    
+#ifdef OF_USING_POCO
+    ofMouseEventArgs mouseEventArgs;
+    mouseEventArgs.x = x;
+    mouseEventArgs.y = y;
+    mouseEventArgs.button = button;
+    ofNotifyEvent( ofEvents.mouseDragged, mouseEventArgs );
+#endif
+}
+
+inline void notifyMousePressed(ofBaseApp* app, int x, int y, int button) 
+{
+    if (app)
+        app->mousePressed(x,y, button);
+    
+#ifdef OF_USING_POCO
+    ofMouseEventArgs mouseEventArgs;
+    mouseEventArgs.x = x;
+    mouseEventArgs.y = y;
+    mouseEventArgs.button = button;
+    ofNotifyEvent( ofEvents.mousePressed, mouseEventArgs );
+#endif
+}
+
+inline void notifyMouseReleased(ofBaseApp* app, int x, int y, int button) 
+{
+    if (app)
+        app->mouseReleased(x,y, button);
+    
+#ifdef OF_USING_POCO
+    ofMouseEventArgs mouseEventArgs;
+    mouseEventArgs.x = x;
+    mouseEventArgs.y = y;
+    mouseEventArgs.button = button;
+    ofNotifyEvent( ofEvents.mouseReleased, mouseEventArgs );
+#endif
+}
+
+inline void notifyKeyPressed(ofBaseApp* app, int key) 
+{
+    if (app)
+        app->keyPressed(key);
+    
+#ifdef OF_USING_POCO
+    ofKeyEventArgs args;
+    args.key = key;
+    ofNotifyEvent( ofEvents.keyPressed, args );
+#endif
+}
+
+inline void notifyKeyReleased(ofBaseApp* app, int key) 
+{
+    if (app)
+        app->keyReleased(key);
+    
+#ifdef OF_USING_POCO
+    ofKeyEventArgs args;
+    args.key = key;
+    ofNotifyEvent( ofEvents.keyReleased, args );
+#endif
+}
+
+inline void notifyWindowResized(ofBaseApp* app, int width, int height) 
+{
+    if (app)
+        app->windowResized(width, height);
+    
+#ifdef OF_USING_POCO
+    ofResizeEventArgs args;
+    args.width = width;
+    args.height = height;
+    ofNotifyEvent( ofEvents.windowResized, args );
+#endif
+}
+
+
+
 class ofEventHandler : public osgGA::GUIEventHandler {
 public:
     ofEventHandler(ofBaseApp* app) : osgGA::GUIEventHandler(), _app(app) {}
@@ -30,30 +173,30 @@ public:
         
         switch(ea.getEventType()) {
             case osgGA::GUIEventAdapter::MOVE:
-                ofNotifyMouseMoved(x, y);
+                notifyMouseMoved(_app, x, y);
                 break;
             
             case osgGA::GUIEventAdapter::DRAG:
-                ofNotifyMouseDragged(x, y, ea.getButton());
+                notifyMouseDragged(_app, x, y, ea.getButton());
                 break;
                 
             case osgGA::GUIEventAdapter::PUSH:
-                ofNotifyMousePressed(x, y, ea.getButton());
+                notifyMousePressed(_app, x, y, ea.getButton());
                 break;
             
             case osgGA::GUIEventAdapter::RELEASE:
-                ofNotifyMouseReleased(x, y, ea.getButton());
+                notifyMouseReleased(_app, x, y, ea.getButton());
                 break;
             
             case osgGA::GUIEventAdapter::KEYDOWN:
-                ofNotifyKeyPressed(ea.getKey());
+                notifyKeyPressed(_app, ea.getKey());
                 break;
                 
             case osgGA::GUIEventAdapter::KEYUP:
-                ofNotifyKeyReleased(ea.getKey());
+                notifyKeyReleased(_app, ea.getKey());
                 break;
 			case osgGA::GUIEventAdapter::RESIZE:
-				ofNotifyWindowResized(ea.getWindowWidth(), ea.getWindowHeight());
+				notifyWindowResized(_app, ea.getWindowWidth(), ea.getWindowHeight());
             default:
                 break;
             
@@ -63,6 +206,7 @@ public:
     }
 
 private:
+    
     ofBaseApp* _app;
 };
 
@@ -109,7 +253,7 @@ public:
             ofSetupScreen();
 
         
-        ofNotifyDraw();
+        notifyDraw( _app->getApp());
         
         glPopAttrib(); 
         
@@ -204,14 +348,15 @@ void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
         viewer->realize();
         _view->getCamera()->getGraphicsContext()->makeCurrent();
         
-        ofNotifySetup();
+        notifySetup(appPtr);
         
         while(!viewer->done()) {
-            ofNotifyUpdate(); 
+            notifyUpdate(appPtr); 
             viewer->frame();
         }
         _view->getCamera()->getGraphicsContext()->makeCurrent();
         
+        notifyExit(appPtr);
         delete appPtr;
         ofRunApp(NULL);
         

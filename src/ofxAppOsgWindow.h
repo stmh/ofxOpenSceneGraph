@@ -53,6 +53,7 @@ public:
 protected:
     void setView(osgViewer::View* view) { _view = view; }
     osgViewer::View* getView() { return _view; }
+    ofBaseApp* getApp() { return _app; }
     
     osg::ref_ptr<osgViewer::View> _view;
     ofBaseApp*                     _app;
