@@ -3,7 +3,7 @@ by <http://stephanmaximilianhuber.com>
 
 this small add-on helps OpenFrameworks-code to live side by side with OpenSceneGraph.
 
-### Prerequesites
+### Requirements
 
 * OpenSceneGraph from <http://openscenegraph.org>
 * OpenFrameworks 0062 from <http://openframeworks.org>
