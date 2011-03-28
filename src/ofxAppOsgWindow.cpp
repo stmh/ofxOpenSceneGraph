@@ -15,10 +15,13 @@
 #include <osgViewer/CompositeViewer>
 #include <osgGA/GUIEventHandler>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgDB/Registry>
 
 
 extern ofCoreEvents 				ofEvents;
 extern ofEventArgs					voidEventArgs;
+
+
 // some glue-code for event-handling:
 
 inline void notifySetup(ofBaseApp* app) 
@@ -434,6 +437,10 @@ void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
         return;
     
     _app = appPtr;
+    
+    std::string data_path = ofToDataPath("");
+    osgDB::Registry::instance()->getDataFilePathList().push_back(data_path);
+
     
     // create the viewer
     
