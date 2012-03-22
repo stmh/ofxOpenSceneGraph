@@ -118,7 +118,7 @@ void testApp::setup(){
     getView()->setCameraManipulator(new osgGA::TrackballManipulator());
 	// of circle do nothing we must use osg graphics i suppose...
 	// i tried to setting mipmapping to solve the texture bug... but it dosen't
-    ofCircle(10,20,20);
+    
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -144,7 +144,7 @@ void testApp::draw(){
 
     ofDrawBitmapString("'1': set window position\n'2': set window size\n'f': disable full screen \n'F': enable full screen\n's': show osg's stats-handler", 10,50);
 
-
+    ofCircle(10,20,20);
 }
 
 //--------------------------------------------------------------

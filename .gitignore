@@ -6,4 +6,6 @@ project.xcworkspace
 xcuserdata
 build
 *.app
+DerivedData
+*.build
 
