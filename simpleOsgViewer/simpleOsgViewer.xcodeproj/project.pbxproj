@@ -649,6 +649,7 @@
 					"-lpthread",
 				);
 				OTHER_LDFLAGS = "";
+				SDKROOT = macosx10.6;
 			};
 			name = ReleaseUniversal;
 		};
@@ -737,6 +738,7 @@
 					"-lpthread",
 				);
 				OTHER_LDFLAGS = "";
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -774,6 +776,7 @@
 					"-lpthread",
 				);
 				OTHER_LDFLAGS = "";
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
