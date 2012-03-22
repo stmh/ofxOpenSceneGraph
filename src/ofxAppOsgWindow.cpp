@@ -286,6 +286,7 @@ ofxAppOsgWindow::ofxAppOsgWindow()
 :   _view(NULL),
     _app(NULL),
     _setupScreen(true),
+    _fullscreen(false),
     _frameNumber(0),
     _frameRate(60.0),
     _lastFrameTime(0.0)
@@ -303,6 +304,19 @@ void ofxAppOsgWindow::setupOpenGL(int w, int h, int screenMode)
         osg::GraphicsContext::WindowingSystemInterface* wsi = osg::GraphicsContext::getWindowingSystemInterface();
         wsi->setScreenResolution(0, w, h);
     }
+    
+    _view = new osgViewer::View();
+
+    if(_screenMode == OF_FULLSCREEN || _screenMode == OF_GAME_MODE)
+    {
+       _view->setUpViewOnSingleScreen();
+    }
+    else
+    {
+        _view->setUpViewInWindow(0, 0, _w, _h);
+    }
+    _view->getCamera()->getGraphicsContext()->realize();
+    _view->getCamera()->getGraphicsContext()->makeCurrent();
 }
 
 
@@ -393,7 +407,10 @@ ofPoint	ofxAppOsgWindow::getWindowSize()
 
 void ofxAppOsgWindow::setFullscreen(bool fullscreen)
 {
-
+    if (fullscreen == _fullscreen) return;
+    
+    _fullscreen = fullscreen;
+    
     int x, y;
     unsigned int w, h;
     bool decoration;
