@@ -52,6 +52,10 @@ public:
     
     inline bool setupScreenEnabled() const { return _setupScreen; }
     
+    virtual int		getWidth(){ return _w; }
+	virtual int		getHeight(){ return _h; }
+
+    
 protected:
     
     void setView(osgViewer::View* view) { _view = view; }
