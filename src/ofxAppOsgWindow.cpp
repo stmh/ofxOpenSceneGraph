@@ -22,142 +22,6 @@ extern ofCoreEvents 				ofEvents;
 extern ofEventArgs					voidEventArgs;
 
 
-// some glue-code for event-handling:
-
-inline void notifySetup(ofBaseApp* app)
-{
-    if (app)
-        app->setup();
-
-    #ifdef OF_USING_POCO
-        ofNotifyEvent( ofEvents.setup, voidEventArgs );
-    #endif
-}
-
-
-inline void notifyUpdate(ofBaseApp* app)
-{
-    if (app)
-        app->update();
-
-    #ifdef OF_USING_POCO
-        ofNotifyEvent( ofEvents.update, voidEventArgs );
-    #endif
-}
-
-inline void notifyDraw(ofBaseApp* app)
-{
-    if (app)
-        app->draw();
-
-#ifdef OF_USING_POCO
-    ofNotifyEvent( ofEvents.draw, voidEventArgs );
-#endif
-}
-
-inline void notifyExit(ofBaseApp* app)
-{
-    if (app)
-        app->exit();
-
-#ifdef OF_USING_POCO
-    ofNotifyEvent( ofEvents.exit, voidEventArgs );
-#endif
-}
-
-inline void notifyMouseMoved(ofBaseApp* app, int x, int y)
-{
-    if (app)
-        app->mouseMoved(x,y);
-
-#ifdef OF_USING_POCO
-    ofMouseEventArgs mouseEventArgs;
-    mouseEventArgs.x = x;
-    mouseEventArgs.y = y;
-    ofNotifyEvent( ofEvents.mouseMoved, mouseEventArgs );
-#endif
-}
-
-inline void notifyMouseDragged(ofBaseApp* app, int x, int y, int button)
-{
-    if (app)
-        app->mouseDragged(x,y, button);
-
-#ifdef OF_USING_POCO
-    ofMouseEventArgs mouseEventArgs;
-    mouseEventArgs.x = x;
-    mouseEventArgs.y = y;
-    mouseEventArgs.button = button;
-    ofNotifyEvent( ofEvents.mouseDragged, mouseEventArgs );
-#endif
-}
-
-inline void notifyMousePressed(ofBaseApp* app, int x, int y, int button)
-{
-    if (app)
-        app->mousePressed(x,y, button);
-
-#ifdef OF_USING_POCO
-    ofMouseEventArgs mouseEventArgs;
-    mouseEventArgs.x = x;
-    mouseEventArgs.y = y;
-    mouseEventArgs.button = button;
-    ofNotifyEvent( ofEvents.mousePressed, mouseEventArgs );
-#endif
-}
-
-inline void notifyMouseReleased(ofBaseApp* app, int x, int y, int button)
-{
-    if (app)
-        app->mouseReleased(x,y, button);
-
-#ifdef OF_USING_POCO
-    ofMouseEventArgs mouseEventArgs;
-    mouseEventArgs.x = x;
-    mouseEventArgs.y = y;
-    mouseEventArgs.button = button;
-    ofNotifyEvent( ofEvents.mouseReleased, mouseEventArgs );
-#endif
-}
-
-inline void notifyKeyPressed(ofBaseApp* app, int key)
-{
-    if (app)
-        app->keyPressed(key);
-
-#ifdef OF_USING_POCO
-    ofKeyEventArgs args;
-    args.key = key;
-    ofNotifyEvent( ofEvents.keyPressed, args );
-#endif
-}
-
-inline void notifyKeyReleased(ofBaseApp* app, int key)
-{
-    if (app)
-        app->keyReleased(key);
-
-#ifdef OF_USING_POCO
-    ofKeyEventArgs args;
-    args.key = key;
-    ofNotifyEvent( ofEvents.keyReleased, args );
-#endif
-}
-
-inline void notifyWindowResized(ofBaseApp* app, int width, int height)
-{
-    if (app)
-        app->windowResized(width, height);
-
-#ifdef OF_USING_POCO
-    ofResizeEventArgs args;
-    args.width = width;
-    args.height = height;
-    ofNotifyEvent( ofEvents.windowResized, args );
-#endif
-}
-
-
 
 class ofEventHandler : public osgGA::GUIEventHandler {
 public:
@@ -173,31 +37,31 @@ public:
 
         switch(ea.getEventType()) {
             case osgGA::GUIEventAdapter::MOVE:
-                notifyMouseMoved(_app, x, y);
+                ofNotifyMouseMoved(x, y);
                 break;
 
             case osgGA::GUIEventAdapter::DRAG:
-                notifyMouseDragged(_app, x, y, ea.getButton());
+                ofNotifyMouseDragged(x, y, ea.getButton());
                 break;
 
             case osgGA::GUIEventAdapter::PUSH:
-                notifyMousePressed(_app, x, y, ea.getButton());
+                ofNotifyMousePressed(x, y, ea.getButton());
                 break;
 
             case osgGA::GUIEventAdapter::RELEASE:
-                notifyMouseReleased(_app, x, y, ea.getButton());
+                ofNotifyMouseReleased(x, y, ea.getButton());
                 break;
 
             case osgGA::GUIEventAdapter::KEYDOWN:
-                notifyKeyPressed(_app, ea.getKey());
+                ofNotifyKeyPressed(ea.getKey());
                 break;
 
             case osgGA::GUIEventAdapter::KEYUP:
-                notifyKeyReleased(_app, ea.getKey());
+                ofNotifyKeyReleased(ea.getKey());
                 break;
 
             case osgGA::GUIEventAdapter::RESIZE:
-				notifyWindowResized(_app, ea.getWindowWidth(), ea.getWindowHeight());
+				ofNotifyWindowResized(ea.getWindowWidth(), ea.getWindowHeight());
                 break;
 
             default:
@@ -226,40 +90,39 @@ public:
     virtual void operator()(osg::RenderInfo &renderInfo) const
     {
         glPushAttrib(GL_ALL_ATTRIB_BITS);
-
+        glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+        
         int width, height;
 
         width  = ofGetWidth();
         height = ofGetHeight();
 
-        height = height > 0 ? height : 1;
         // set viewport, clear the screen
-        glViewport( 0, 0, width, height );
+        ofViewport(0, 0, width, height);		// used to be glViewport( 0, 0, width, height );
         float * bgPtr = ofBgColorPtr();
         bool bClearAuto = ofbClearBg();
 
         // to do non auto clear on PC for now - we do something like "single" buffering --
         // it's not that pretty but it work for the most part
 
-#ifdef TARGET_WIN32
+        #ifdef TARGET_WIN32
         if (bClearAuto == false){
             glDrawBuffer (GL_FRONT);
         }
-#endif
+        #endif
 
         if ( bClearAuto == true || _frameCount < 3){
-            glClearColor(bgPtr[0],bgPtr[1],bgPtr[2], bgPtr[3]);
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            ofClear(bgPtr[0]*255,bgPtr[1]*255,bgPtr[2]*255, bgPtr[3]*255);
         }
+        
+        
+        if(_app->setupScreenEnabled()) ofSetupScreen();
 
-        if(_app->setupScreenEnabled())
-            ofSetupScreen();
-
-
-        notifyDraw( _app->getApp());
-
+        ofNotifyDraw();
+        
+        glPopClientAttrib();
         glPopAttrib();
-
+        
         osg::Timer_t tick = _t.tick();
         double frameDuration = _t.delta_s(_lastFrameTimeStamp, tick);
         _app->_frameNumber = _frameCount;
@@ -286,6 +149,7 @@ ofxAppOsgWindow::ofxAppOsgWindow()
 :   _view(NULL),
     _app(NULL),
     _setupScreen(true),
+    _fullscreen(false),
     _frameNumber(0),
     _frameRate(60.0),
     _lastFrameTime(0.0)
@@ -303,6 +167,19 @@ void ofxAppOsgWindow::setupOpenGL(int w, int h, int screenMode)
         osg::GraphicsContext::WindowingSystemInterface* wsi = osg::GraphicsContext::getWindowingSystemInterface();
         wsi->setScreenResolution(0, w, h);
     }
+    
+    _view = new osgViewer::View();
+
+    if(_screenMode == OF_FULLSCREEN || _screenMode == OF_GAME_MODE)
+    {
+       _view->setUpViewOnSingleScreen();
+    }
+    else
+    {
+        _view->setUpViewInWindow(0, 0, _w, _h);
+    }
+    _view->getCamera()->getGraphicsContext()->realize();
+    _view->getCamera()->getGraphicsContext()->makeCurrent();
 }
 
 
@@ -393,7 +270,10 @@ ofPoint	ofxAppOsgWindow::getWindowSize()
 
 void ofxAppOsgWindow::setFullscreen(bool fullscreen)
 {
-
+    if (fullscreen == _fullscreen) return;
+    
+    _fullscreen = fullscreen;
+    
     int x, y;
     unsigned int w, h;
     bool decoration;
@@ -498,11 +378,11 @@ void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
     _view->getCamera()->getGraphicsContext()->makeCurrent();
 
     // notify app
-    notifySetup(appPtr);
+    ofNotifySetup();
 
     // run
     while(!viewer->done()) {
-        notifyUpdate(appPtr);
+        ofNotifyUpdate();
         viewer->frame();
     }
 
@@ -510,13 +390,15 @@ void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
     _view->getCamera()->getGraphicsContext()->makeCurrent();
 
     //notify exit
-    notifyExit(appPtr);
+    ofNotifyExit();
 
     // delete app now, because some of-objects assume a valid graphcis-context
     delete appPtr;
-
+    
+    ofSetAppPtr(ofPtr<ofBaseApp>());
+    
     // set app-ptr to NULL
-    ofRunApp(NULL);
+    // ofRunApp(NULL);
 
     // clear view + viewer
     _view->getCamera()->setPreDrawCallback(NULL);
@@ -524,6 +406,6 @@ void ofxAppOsgWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr)
 
     _view = NULL;
     viewer = NULL;
-
+    
     OF_EXIT_APP(0);
 }
