@@ -1,0 +1,14 @@
+# pkg-config source file
+
+prefix=/tmp/OpenSceneGraph-3.0.1-Ubuntu-x86-release-12741
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: openscenegraph-osgText
+Description: Text rendering library for Openscenegraph
+Version: 3.0.1
+Requires: openscenegraph-osgDB openscenegraph-osg openthreads
+Conflicts:
+Libs: -L${libdir} -losgText
+Cflags: -I${includedir}

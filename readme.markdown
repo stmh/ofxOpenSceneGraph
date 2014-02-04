@@ -50,3 +50,22 @@ There's even a ofxOsgApp-class, so you can get the composite-viewer and view fro
 Have fun, 
 
 Stephan ( me at stephanmaximimilanhuber.com )
+
+### Linux instructions by kalwalt
+
+this version of ofxOpenSceneGraph is an adapted version to run with OpenFramework 007 and OSG 3.0.1 .
+there are some modification in ofxOsgApp.h , only an include header :
+ #include <cstddef> 
+ due to issue with the compiler. more details in the OF forum : http://forum.openframeworks.cc/index.php/topic,5843.0.html
+in the examples you will find codeblocks projects with makefile. Foloow this instructions:
+* download, configure and install OpenFrameworks
+* download and copy this addon into OpenFramworks/addons
+* download, configure and install OpenSceneGraph
+* build OSG with Cmake , after configure and Generate, cd to OSG and run make , and sudo make install.
+* the codeblocks project assume that you have installed OSG in your system . but you must set the include flags.... this is not the best solution we will see...
+* You can see that i put the lib and the OSG source in linux/lib probably you must replace them with the yours .
+* try the examples , look in the osgTerrain example and the bug with the texture ... How we can solve it?
+
+
+
+
